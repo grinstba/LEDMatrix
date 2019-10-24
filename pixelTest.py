@@ -19,5 +19,5 @@ for univ in range(1, 72):
 
     sender[univ].dmx_data = row
 
-time.sleep(0.1)  # send the data for 10 seconds
+time.sleep(10)  # send the data for 10 seconds
 sender.stop()  # do not forget to stop the sender
