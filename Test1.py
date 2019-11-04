@@ -2,6 +2,7 @@
 #!/usr/bin/env python3
 import sacn
 import time
+import numpy
 
 sender = sacn.sACNsender()  # provide an IP-Address to bind to if you are using Windows and want to use multicast
 sender.start()  # start the sending thread
