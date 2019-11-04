@@ -20,5 +20,6 @@ while(x<1):
 	print(processed)
 xData = np.linspace(0, 1/(2*(1/sampling)), samples/2)
 plt.figure(num=1, figsize=(8,6))
-plt.semilogx(xData, 2/samples * np.abs(processed[:samples//2]))
+plt.plot(xData, 2/samples * np.abs(processed[:samples//2]))
+plt.xscale('log')
 plt.savefig('spectrogram.png', format='png')
