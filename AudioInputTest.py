@@ -2,18 +2,23 @@
 import Adafruit_BBIO.ADC as ADC
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 ADC.setup()
 x=0
-while(x<10):
+sampling = 44100
+samples = 1024
+while(x<1):
 	current = []
-	for i in range(0,1024,1):
+	for i in range(0,samples,1):
 		value = ADC.read("AIN0")
 		current.append(value)
 	print(current)
-	time.sleep(0.05)	
+	time.sleep(1/sampling)	
 	x = x + 1
 	processed = np.fft.fft(current)
 	print(processed)
-
-
+xData = np.linspace(0, 1/(2*(1/sampling)), samples/2)
+plt.figure(num=1, figsize=(8,6))
+plt.plot(xData, 2/samples * np.abs(processed[:samples//2]))
+plt.savefig('spectrogram.png', format='png')
