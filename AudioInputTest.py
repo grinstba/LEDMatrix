@@ -14,8 +14,8 @@ while(x<1):
 	for i in range(0,samples,1):
 		value = ADC.read("AIN0")
 		current.append(value)
-	print(current)
-	time.sleep(1/sampling)	
+		time.sleep(T)
+	print(current)	
 	x = x + 1
 	processed = np.fft.fft(current)
 	print(processed)
