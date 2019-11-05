@@ -1,8 +1,9 @@
 # From https://github.com/Hundemeier/sacn
-sudo pip install sacn
+sudo pip3 install sacn
 
 # https://www.npmjs.com/package/e131
 npm install e131
 
 # This is need to resize images
 sudo apt install imagemagick
+sudo apt install numpy-python3
