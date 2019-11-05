@@ -17,7 +17,7 @@ while(x<1):
 		time.sleep(T)
 	print(current)	
 	x = x + 1
-	processed = np.fft.fftshift(current)
+	processed = np.fft.fft(current)
 	print(processed)
 xData = np.linspace(0,Fs/2,samples/2)
 plt.figure(num=1, figsize=(8,6))
