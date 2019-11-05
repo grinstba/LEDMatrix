@@ -18,7 +18,7 @@ while(x<1):
 	x = x + 1
 	processed = np.fft.fft(current)
 	print(processed)
-xData = np.linspace(0, 1/((1/sampling)), samples/2)
+xData = np.linspace(0, 1/((2*sampling)), samples/2)
 plt.figure(num=1, figsize=(8,6))
 plt.plot(xData, 2/samples * np.abs(processed[:samples//2]))
 plt.xscale('log')
