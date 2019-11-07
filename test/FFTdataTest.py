@@ -17,6 +17,8 @@ class AudioStream(object):
         self.RATE = 44100
         self.pause = False
         self.numBands = 32
+        self.fig = None
+        self.line1 = None
 
         # stream object
         self.p = pyaudio.PyAudio()
@@ -41,29 +43,31 @@ class AudioStream(object):
             bandData[k] = sum / bandSize
 
         return bandData
-            
-    def startSpectrum(self):
 
+    def setupPlot(self):
         x = np.linspace(0,self.numBands - 1,self.numBands)
         y = [0] * self.numBands
         plt.ion()
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        line1, = ax.plot(x, y, 'b-')
+        self.fig = plt.figure()
+        ax = self.fig.add_subplot(111)
+        self.line1, = ax.plot(x, y, 'b-')
+            
+    def startSpectrum(self):
+
+        self.setupPlot()
 
         while True:
             data = self.stream.read(self.CHUNK, False)
             data_int = struct.unpack(str(2 * self.CHUNK) + 'B', data)
-            data_np = np.array(data_int, dtype='b')[::2] + 128
 
             yf = fft(data_int)
             yfData = np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)
 
             bandData = self.createBands(yfData)
             print(len(bandData))
-            line1.set_ydata(bandData)
-            fig.canvas.draw()
-            fig.canvas.flush_events()
+            self.line1.set_ydata(bandData)
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
             
 
 if __name__ == '__main__':
