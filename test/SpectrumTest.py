@@ -92,14 +92,14 @@ class AudioStream(object):
         start_time = time.time()
 
         while not self.pause:
-            data = self.stream.read(self.CHUNK)
+            data = self.stream.read(self.CHUNK, False)
             data_int = struct.unpack(str(2 * self.CHUNK) + 'B', data)
             data_np = np.array(data_int, dtype='b')[::2] + 128
 
             self.line.set_ydata(data_np)
 
             # compute FFT and update line
-            yf = fft(data_int)
+            yf = fft(data_int, 1000)
             self.line_fft.set_ydata(
                 np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK))
                 # np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)*10)
