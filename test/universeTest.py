@@ -7,7 +7,7 @@ import numpy
 sender = sacn.sACNsender()  # provide an IP-Address to bind to if you are using Windows and want to use multicast
 sender.start()  # start the sending thread
 sender.activate_output(1)  # start sending out data in the 1st universe
-sender[1].destination = "fpp"  # or provide unicast information
+sender[1].destination = "192.168.7.2"  # or provide unicast information
 row=[]
 #for i in range(0,192):
 #	if(i%3==0):

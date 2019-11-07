@@ -54,7 +54,8 @@ class AudioStream(object):
             data_np = np.array(data_int, dtype='b')[::2] + 128
 
             yf = fft(data_int, 64)
-            print(len(np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)))
+            yff = np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)
+            print(yff)
 
 
 if __name__ == '__main__':
