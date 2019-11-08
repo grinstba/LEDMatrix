@@ -99,9 +99,9 @@ class AudioStream(object):
             self.line.set_ydata(data_np)
 
             # compute FFT and update line
-            yf = fft(data_int, 1000)
-            self.line_fft.set_ydata(
-                np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK))
+            yf = fft(data_int)
+            yfData =  np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)
+            self.line_fft.set_ydata(yfData)
                 # np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)*10)
 
             # update figure canvas
