@@ -9,6 +9,7 @@ import time
 import math
 import os
 import sacn
+import signal
 
 class AudioStream(object):
     def __init__(self):
@@ -24,6 +25,8 @@ class AudioStream(object):
         self.fig = None
         self.line1 = None
 
+        signal.signal(signal.SIGINT, self.signal_handler)
+
         self.clear = lambda: os.system('clear')
         
         # stream object
@@ -37,6 +40,11 @@ class AudioStream(object):
             frames_per_buffer=self.CHUNK,
         )
         self.startSpectrum()
+
+    def signal_handler(self, sig, frame):
+        print('Stopping the sender')
+        self.sender.stop()
+        sys.exit(0)
 
     def createBands(self, data):
         bandData = [0] * self.numBands
@@ -65,12 +73,12 @@ class AudioStream(object):
 
         self.setupPlot()
         
-        sender = sacn.sACNsender()
-        sender.start()
+        self.sender = sacn.sACNsender()
+        self.sender.start()
+
         for u in range(1,97):
-            sender.activate_output(u)
-            sender[u].destination = "192.168.7.2"
-            print(u)
+            self.sender.activate_output(u)
+            self.sender[u].destination = "192.168.7.2"
 
         while True:
             data = self.stream.read(self.CHUNK, False)
@@ -91,8 +99,8 @@ class AudioStream(object):
                             row.append(0)
                     for k in range(int(192-height)):
                         row.append(0)
-                instance.sender[i].dmx_data = row
-                time.sleep(0.003)
+                self.sender[i+1].dmx_data = row
+                # time.sleep(0.003)
             self.clear()
             print(bandData)
             self.line1.set_ydata(bandData)
