@@ -90,17 +90,20 @@ class AudioStream(object):
             bandData = self.createBands(yfData)
             for i in range(21):
                 row = []
-                height = bandData[i]*300
+                height = int(bandData[i]*100)
+                print(height)
+                zeros = 64 - height 
                 for r in range(2):
-                    for a in range(int(height)):
-                        if(a%3==0):
+                    for a in range(height):
                             row.append(255)
                             row.append(0)
                             row.append(0)
-                    for k in range(int(192-height)):
-                        row.append(0)
+                    for k in range(zeros):
+                            row.append(0)
+                            row.append(0)
+                            row.append(0)
                 self.sender[i+1].dmx_data = row
-                # time.sleep(0.003)
+                time.sleep(0.003)
             self.clear()
             print(bandData)
             self.line1.set_ydata(bandData)
