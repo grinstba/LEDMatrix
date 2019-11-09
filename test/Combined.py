@@ -102,8 +102,9 @@ class AudioStream(object):
                             row.append(0)
                             row.append(0)
                             row.append(0)
-                self.sender[i+1].dmx_data = row
-                # time.sleep(0.0001)
+                for b in range(3):
+                    self.sender[i*4+(b+1)+1].dmx_data = row
+                    time.sleep(0.0001)
             self.clear()
             print(bandData)
             # self.line1.set_ydata(bandData)
