@@ -21,8 +21,9 @@ class AudioStream(object):
         self.numBands = len(self.bins)
         self.fig = None
         self.line1 = None
-        self.modes = [0,0]
-        self.mode = 0
+        self.modes = [0, 0, 0, 1, 2]
+        self.mode = 2
+        self.numColors = 3
 
         signal.signal(signal.SIGINT, self.signal_handler)
         
@@ -97,10 +98,10 @@ class AudioStream(object):
             yfData = np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)
 
             bandData = self.createBands(yfData)
-            self.modes[0] = (self.modes[0] + 1) % 3
+            self.modes[0] = (self.modes[0] + 1) % self.numColors
 
             for i in range(21):
-                self.modes[1] = (self.modes[1] + 1) % 3 
+                self.modes[1] = (self.modes[1] + 1) % self.numColors
                 row = []
                 height = int(bandData[i]*300)
                 zeros = 64 - height 
