@@ -71,7 +71,7 @@ class AudioStream(object):
             
     def startSpectrum(self):
 
-        self.setupPlot()
+        # self.setupPlot()
         
         self.sender = sacn.sACNsender()
         self.sender.start()
@@ -90,8 +90,8 @@ class AudioStream(object):
             bandData = self.createBands(yfData)
             for i in range(21):
                 row = []
-                height = int(bandData[i]*100)
-                print(height)
+                height = int(bandData[i]*300)
+                # print(height)
                 zeros = 64 - height 
                 for r in range(2):
                     for a in range(height):
@@ -103,12 +103,12 @@ class AudioStream(object):
                             row.append(0)
                             row.append(0)
                 self.sender[i+1].dmx_data = row
-                time.sleep(0.003)
+                # time.sleep(0.0001)
             self.clear()
             print(bandData)
-            self.line1.set_ydata(bandData)
-            self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
+            # self.line1.set_ydata(bandData)
+            # self.fig.canvas.draw()
+            # self.fig.canvas.flush_events()
             
 
 if __name__ == '__main__':
