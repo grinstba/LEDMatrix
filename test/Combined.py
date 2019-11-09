@@ -107,8 +107,6 @@ class AudioStream(object):
             self.sender[u].destination = "192.168.7.2"
 
         keyboard.add_hotkey('enter', lambda: self.switchMode())
-        # mode1=0
-
         
         while True:
             data = self.stream.read(self.CHUNK, False)
@@ -119,7 +117,7 @@ class AudioStream(object):
 
             bandData = self.createBands(yfData)
             self.modes[0] = (self.modes[0] + 1) % 3
-            # colorInt = mode1
+
             for i in range(21):
                 self.modes[1] = (self.modes[1] + 1) % 3 
                 row = []

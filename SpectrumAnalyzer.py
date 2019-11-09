@@ -1,97 +1,126 @@
-"""
-Notebook for streaming data from a microphone in realtime
-
-audio is captured using pyaudio
-then converted from binary data to ints using struct
-then displayed using matplotlib
-
-if you don't have pyaudio, then run
-
->>> pip install pyaudio
-
-note: with 2048 samples per chunk, I'm getting 20FPS
-"""
-
-import pyaudio
-import os
-import struct
 import numpy as np
-import matplotlib.pyplot as plt
+import pyaudio
+import struct
+from scipy.fftpack import fft
+import sys
 import time
-from tkinter import TclError
+import math
+import sacn
+import signal
+import keyboard
 
-# use this backend to display in separate Tk window
-#matplotlib tk
+class AudioStream(object):
+    def __init__(self):
 
-# constants
-CHUNK = 1024 * 2             # samples per frame
-FORMAT = pyaudio.paInt16     # audio format (bytes per sample?)
-CHANNELS = 1                 # single channel for microphone
-RATE = 44100                 # samples per second
+        # stream constants
+        self.CHUNK = 2048 * 2
+        self.FORMAT = pyaudio.paInt16
+        self.CHANNELS = 1
+        self.RATE = 44100
+        self.bins = [3,3,3,4,6,6,8,8,10,10,14,15,15,15,20,20,20,25,25,30,50]
+        self.numBands = len(self.bins)
+        self.fig = None
+        self.line1 = None
+        self.modes = [0,0]
+        self.mode = 0
 
-# create matplotlib figure and axes
-fig, ax = plt.subplots(1, figsize=(15, 7))
-
-# pyaudio class instance
-p = pyaudio.PyAudio()
-
-# stream object to get data from microphone
-stream = p.open(
-    format=FORMAT,
-    channels=CHANNELS,
-    rate=RATE,
-    input=True,
-    output=True,
-    frames_per_buffer=CHUNK
-)
-
-# variable for plotting
-x = np.arange(0, 2 * CHUNK, 2)
-
-# create a line object with random data
-line, = ax.plot(x, np.random.rand(CHUNK), '-', lw=2)
-
-# basic formatting for the axes
-ax.set_title('AUDIO WAVEFORM')
-ax.set_xlabel('samples')
-ax.set_ylabel('volume')
-ax.set_ylim(0, 255)
-ax.set_xlim(0, 2 * CHUNK)
-plt.setp(ax, xticks=[0, CHUNK, 2 * CHUNK], yticks=[0, 128, 255])
-
-# show the plot
-plt.show(block=False)
-
-print('stream started')
-
-# for measuring frame rate
-frame_count = 0
-start_time = time.time()
-
-while True:
-    
-    # binary data
-    data = stream.read(CHUNK)  
-    
-    # convert data to integers, make np array, then offset it by 127
-    data_int = struct.unpack(str(2 * CHUNK) + 'B', data)
-    
-    # create np array and offset by 128
-    data_np = np.array(data_int, dtype='b')[::2] + 128
-    
-    line.set_ydata(data_np)
-    
-    # update figure canvas
-    try:
-        fig.canvas.draw()
-        fig.canvas.flush_events()
-        frame_count += 1
+        signal.signal(signal.SIGINT, self.signal_handler)
         
-    except TclError:
+        # stream object
+        self.p = pyaudio.PyAudio()
+        self.stream = self.p.open(
+            format=self.FORMAT,
+            channels=self.CHANNELS,
+            rate=self.RATE,
+            input=True,
+            output=True,
+            frames_per_buffer=self.CHUNK,
+        )
+        self.startSpectrum()
+
+    def signal_handler(self, sig, frame):
+        print('Stopping the sender')
+        self.sender.stop()
+        sys.exit(0)
+    
+    def addRed(self, row):
+        row.append(255)
+        row.append(0)
+        row.append(0)
+    
+    def addBlue(self, row):
+        row.append(0)
+        row.append(255)
+        row.append(0)
+
+    def addGreen(self, row):
+        row.append(0)
+        row.append(0)
+        row.append(255)
+
+    def createBands(self, data):
+        bandData = [0] * self.numBands
+        index = 6
+        for k in range(self.numBands):
+            max = 0
+            for _ in range(self.bins[k]):
+                if(data[index] > max):
+                   max = data[index]
+                index+= 1
+
+            bandData[k] = max
+
+        return bandData
+
+    def switchMode(self):
+        self.mode = (self.mode + 1) % len(self.modes)
+
+    def getColor(self):
+        return self.modes[self.mode]
+            
+    def startSpectrum(self):
         
-        # calculate average frame rate
-        frame_rate = frame_count / (time.time() - start_time)
+        self.sender = sacn.sACNsender()
+        self.sender.start()
+
+        for u in range(1,97):
+            self.sender.activate_output(u)
+            self.sender[u].destination = "192.168.7.2"
+
+        keyboard.add_hotkey('enter', lambda: self.switchMode())
         
-        print('stream stopped')
-        print('average frame rate = {:.0f} FPS'.format(frame_rate))
-        break
+        while True:
+            data = self.stream.read(self.CHUNK, False)
+            data_int = struct.unpack(str(2 * self.CHUNK) + 'B', data)
+
+            yf = fft(data_int)
+            yfData = np.abs(yf[0:self.CHUNK]) / (128 * self.CHUNK)
+
+            bandData = self.createBands(yfData)
+            self.modes[0] = (self.modes[0] + 1) % 3
+
+            for i in range(21):
+                self.modes[1] = (self.modes[1] + 1) % 3 
+                row = []
+                height = int(bandData[i]*300)
+                zeros = 64 - height 
+                
+                for r in range(2):
+                    for a in range(height):
+                        colorInt = self.getColor()
+                        if(colorInt==0):
+                            self.addRed(row)
+                        elif(colorInt==1):
+                            self.addBlue(row)
+                        elif(colorInt==2):
+                            self.addGreen(row)
+                    for k in range(zeros):
+                            row.append(0)
+                            row.append(0)
+                            row.append(0)
+                for b in range(3):
+                    self.sender[i*4+(b+1)+7].dmx_data = row
+                    # time.sleep(0.0001)
+
+if __name__ == '__main__':
+    AudioStream()
