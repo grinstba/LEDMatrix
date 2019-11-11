@@ -21,9 +21,9 @@ class AudioStream(object):
         self.numBands = len(self.bins)
         self.fig = None
         self.line1 = None
-        self.modes = [0, 0, 0, 1, 2]
+        self.modes = [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8]
         self.mode = 2
-        self.numColors = 3
+        self.numColors = 9
 
         signal.signal(signal.SIGINT, self.signal_handler)
         
@@ -58,6 +58,36 @@ class AudioStream(object):
         row.append(0)
         row.append(0)
         row.append(255)
+    
+    def addTeal(self, row):
+        row.append(0)
+        row.append(255)
+        row.append(255)
+
+    def addSeafoam(self, row):
+        row.append(51)
+        row.append(255)
+        row.append(153)
+
+    def addOrange(self, row):
+        row.append(255)
+        row.append(153)
+        row.append(51)
+
+    def addPurple(self, row):
+        row.append(153)
+        row.append(51)
+        row.append(255)
+
+    def addPink(self, row):
+        row.append(253)
+        row.append(51)
+        row.append(255)
+
+    def addYellow(self, row):
+        row.append(255)
+        row.append(255)
+        row.append(0)
 
     def createBands(self, data):
         bandData = [0] * self.numBands
@@ -115,6 +145,18 @@ class AudioStream(object):
                             self.addBlue(row)
                         elif(colorInt==2):
                             self.addGreen(row)
+                        elif(colorInt==3):
+                            self.addTeal(row)
+                        elif(colorInt==4):
+                            self.addSeafoam(row)
+                        elif(colorInt==5):
+                            self.addOrange(row)
+                        elif(colorInt==6):
+                            self.addPurple(row)
+                        elif(colorInt==7):
+                            self.addPink(row)
+                        elif(colorInt==8):
+                            self.addYellow(row)
                     for k in range(zeros):
                             row.append(0)
                             row.append(0)
