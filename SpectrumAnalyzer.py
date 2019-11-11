@@ -8,6 +8,7 @@ import math
 import sacn
 import signal
 import keyboard
+import random
 
 class AudioStream(object):
     def __init__(self):
@@ -21,7 +22,7 @@ class AudioStream(object):
         self.numBands = len(self.bins)
         self.fig = None
         self.line1 = None
-        self.modes = [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8]
+        self.modes = [0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.mode = 2
         self.numColors = 9
 
@@ -88,6 +89,11 @@ class AudioStream(object):
         row.append(255)
         row.append(255)
         row.append(0)
+    
+    def addRandom(self, row):
+        row.append(random.randint(0,255))
+        row.append(random.randint(0,255))
+        row.append(random.randint(0,255))
 
     def createBands(self, data):
         bandData = [0] * self.numBands
@@ -133,7 +139,7 @@ class AudioStream(object):
             for i in range(21):
                 self.modes[1] = (self.modes[1] + 1) % self.numColors
                 row = []
-                height = int(bandData[i]*300)
+                height = int(bandData[i]*300) + 10
                 zeros = 64 - height 
                 
                 for r in range(2):
@@ -157,6 +163,8 @@ class AudioStream(object):
                             self.addPink(row)
                         elif(colorInt==8):
                             self.addYellow(row)
+                        elif(colorInt==9):
+                            self.addRandom(row)
                     for k in range(zeros):
                             row.append(0)
                             row.append(0)
